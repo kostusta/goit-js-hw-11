@@ -1,55 +1,38 @@
 import { Notify } from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
 import cardTemplate from '../templates/card-template.hbs';
-import { fetchImages } from './fetchImages';
+import PicturesApiService from './pictures-api-service';
+import LoadMoreBtn from './load-more-btn';
+
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const refs = {
   form: document.getElementById('search-form'),
   cardsList: document.querySelector('.gallery'),
-  loadMoreBtn: document.querySelector('.load-more'),
 };
 
-let currentPage = 1;
-let maxPage;
-let lastQueryValue = '';
+const picturesApiService = new PicturesApiService();
+const loadMoreBtn = new LoadMoreBtn({ selector: '.load-more' });
+const gallery = new SimpleLightbox('.gallery a');
 
 function onFormSubmitHandler(event) {
   event.preventDefault();
 
-  const searchQueryValue = event.currentTarget.elements.searchQuery.value;
+  picturesApiService.searchQuery = event.currentTarget.elements.searchQuery.value;
 
-  fetchImages(searchQueryValue, currentPage)
-    .then(responce => responseHandler(responce))
-    .then(response => {
-      maxPage = Math.ceil(response.totalHits / 40);
-      currentPage += 1;
+  picturesApiService.resetCurrentPageNumber();
+  cardsContainerCleaner();
+  loadMoreBtn.btnShow();
 
-      if (currentPage >= maxPage) {
-        desableLoadMoreBtn();
-        return response;
-      }
-
-      enableLoadMoreBtn();
-      return response;
-    })
-    .then(data => cardsListMarkupCreate(data.hits))
-    .then(markup => cardsListRender(markup))
-
-    .catch(error => console.log(error));
-  // .then(console.log);
+  fetchPictures().then(data => Notify.info(`Hooray! We found ${data.totalHits} images.`));
 }
 
-function responseHandler(responce) {
-  if (responce.hits.length === 0) {
-    Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-  }
-  return responce;
+function onLoadMoreBtnHandlet() {
+  fetchPictures();
 }
 
-function cardsListMarkupCreate(data) {
-  return data.map(item => cardTemplate(item)).join('');
-}
-
-function cardsListRender(markup) {
+function cardsListMarkupRender(data) {
+  const markup = data.hits.map(hit => cardTemplate(hit)).join('');
   refs.cardsList.insertAdjacentHTML('beforeend', markup);
 }
 
@@ -57,19 +40,29 @@ function cardsContainerCleaner() {
   refs.cardsList.innerHTML = '';
 }
 
-function enableLoadMoreBtn() {
-  refs.loadMoreBtn.classList.remove('btn-hidden');
+function fetchPictures() {
+  loadMoreBtn.btnDesabled();
+  return picturesApiService
+    .fetchImages()
+    .then(data => {
+      cardsListMarkupRender(data);
+      loadMoreBtn.btnEnabled();
+      return data;
+    })
+    .then(data => {
+      const maxPagesCount = Math.ceil(data.totalHits / 40);
+      if (picturesApiService.page > maxPagesCount) {
+        loadMoreBtn.btnHide();
+        Notify.info("We're sorry, but you've reached the end of search results.");
+      }
+      return data;
+    })
+    .catch(error => console.log(error));
 }
-
-function desableLoadMoreBtn() {
-  refs.loadMoreBtn.classList.add('btn-hidden');
-}
-
-function onLoadMoreBtnClick(event) {}
 
 function addListeners() {
   refs.form.addEventListener('submit', onFormSubmitHandler);
-  refs.loadMoreBtn.addEventListener('click', onLoadMoreBtnClick);
+  loadMoreBtn.refs.loadMoreBtn.addEventListener('click', onLoadMoreBtnHandlet);
 }
 
 function start() {
