@@ -1,4 +1,4 @@
-import { Notify } from 'notiflix';
+import axios from 'axios';
 
 const API_KEY = '25273523-a46b00b51f98d8c3f042358ca';
 const API_URL = 'https://pixabay.com/api/';
@@ -8,23 +8,22 @@ export default class PicturesApiService {
   constructor() {
     this.searchQueryValue = '';
     this.currentPageNumber = 1;
-    // this.countOfPages = 0;
   }
 
   fetchImages() {
-    return fetch(
-      `${API_URL}?key=${API_KEY}&q=${this.searchQueryValue}&${QUERY_PARAMS}&page=${this.currentPageNumber}`,
-    )
+    return axios
+      .get(
+        `${API_URL}?key=${API_KEY}&q=${this.searchQueryValue}&${QUERY_PARAMS}&page=${this.currentPageNumber}`,
+      )
       .then(response => {
-        if (response.ok) {
-          return response.json();
+        if (response.status === 200) {
+          return response;
         }
         throw new Error(response.statusText);
       })
-      .then(data => this.responseHandler(data))
-      .then(data => {
+      .then(response => {
         this.incrementPage();
-        return data;
+        return response;
       });
   }
 
@@ -34,18 +33,6 @@ export default class PicturesApiService {
 
   resetCurrentPageNumber() {
     this.currentPageNumber = 1;
-  }
-
-  // getPagesCount(data) {
-  //   this.countOfPages = data.totalHits / 40;
-  //   return this.countOfPages;
-  // }
-
-  responseHandler(data) {
-    if (data.hits.length === 0) {
-      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    }
-    return data;
   }
 
   get searchQuery() {

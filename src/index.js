@@ -5,7 +5,7 @@ import PicturesApiService from './js/pictures-api-service';
 import LoadMoreBtn from './js/load-more-btn';
 
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const refs = {
   form: document.getElementById('search-form'),
@@ -25,15 +25,17 @@ function onFormSubmitHandler(event) {
   cardsContainerCleaner();
   loadMoreBtn.btnShow();
 
-  fetchPictures().then(data => Notify.info(`Hooray! We found ${data.totalHits} images.`));
+  fetchPictures().then(response =>
+    Notify.info(`Hooray! We found ${response.data.totalHits} images.`),
+  );
 }
 
 function onLoadMoreBtnHandlet() {
   fetchPictures();
 }
 
-function cardsListMarkupRender(data) {
-  const markup = data.hits.map(hit => cardTemplate(hit)).join('');
+function cardsListMarkupRender(response) {
+  const markup = response.data.hits.map(hit => cardTemplate(hit)).join('');
   refs.cardsList.insertAdjacentHTML('beforeend', markup);
 }
 
@@ -45,18 +47,25 @@ function fetchPictures() {
   loadMoreBtn.btnDesabled();
   return picturesApiService
     .fetchImages()
-    .then(data => {
-      cardsListMarkupRender(data);
+    .then(response => {
       loadMoreBtn.btnEnabled();
-      return data;
+
+      if (response.data.hits.length === 0) {
+        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+        loadMoreBtn.btnHide();
+        return;
+      }
+
+      cardsListMarkupRender(response);
+      return response;
     })
-    .then(data => {
-      const maxPagesCount = Math.ceil(data.totalHits / 40);
+    .then(response => {
+      const maxPagesCount = Math.ceil(response.data.totalHits / 40);
       if (picturesApiService.page > maxPagesCount) {
         loadMoreBtn.btnHide();
         Notify.info("We're sorry, but you've reached the end of search results.");
       }
-      return data;
+      return response;
     })
     .catch(error => console.log(error));
 }
