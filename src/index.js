@@ -57,6 +57,8 @@ function fetchPictures() {
       }
 
       cardsListMarkupRender(response);
+      gallery.on('show.simplelightbox');
+      gallery.refresh();
       return response;
     })
     .then(response => {
