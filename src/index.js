@@ -12,29 +12,9 @@ const refs = {
   cardsList: document.querySelector('.gallery'),
 };
 
-
-
 const picturesApiService = new PicturesApiService();
 const loadMoreBtn = new LoadMoreBtn({ selector: '.load-more' });
 const gallery = new SimpleLightbox('.gallery a');
-
-function onFormSubmitHandler(event) {
-  event.preventDefault();
-
-  picturesApiService.searchQuery = event.currentTarget.elements.searchQuery.value;
-
-  picturesApiService.resetCurrentPageNumber();
-  cardsContainerCleaner();
-  loadMoreBtn.btnShow();
-
-  fetchPictures().then(response =>
-    Notify.info(`Hooray! We found ${response.data.totalHits} images.`),
-  );
-}
-
-function onLoadMoreBtnHandlet() {
-  fetchPictures();
-}
 
 function cardsListMarkupRender(response) {
   const markup = response.data.hits.map(hit => cardTemplate(hit)).join('');
@@ -67,22 +47,40 @@ function fetchPictures() {
 
       cardsListMarkupRender(response);
       scrollDown();
-
-      console.log(refs.cardsList.offsetHeight)
-
       gallery.on('show.simplelightbox');
       gallery.refresh();
+
       return response;
     })
     .then(response => {
       const maxPagesCount = Math.ceil(response.data.totalHits / 40);
+
       if (picturesApiService.page > maxPagesCount) {
         loadMoreBtn.btnHide();
         Notify.info("We're sorry, but you've reached the end of search results.");
       }
+
       return response;
     })
     .catch(error => console.log(error));
+}
+
+function onFormSubmitHandler(event) {
+  event.preventDefault();
+
+  picturesApiService.searchQuery = event.currentTarget.elements.searchQuery.value;
+
+  picturesApiService.resetCurrentPageNumber();
+  cardsContainerCleaner();
+  loadMoreBtn.btnShow();
+
+  fetchPictures().then(response =>
+    Notify.info(`Hooray! We found ${response.data.totalHits} images.`),
+  );
+}
+
+function onLoadMoreBtnHandlet() {
+  fetchPictures();
 }
 
 function addListeners() {
