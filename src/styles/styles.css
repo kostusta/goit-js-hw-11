@@ -1,3 +1,8 @@
+body{
+  font-family: 'Roboto', sans-serif;
+  color: #212121;
+}
+
 h1,
 h2,
 h3,
@@ -22,7 +27,20 @@ img {
   margin-left: auto;
 }
 
-.btn-is-hidden {
+.wrap-container{
+  margin: 0 auto;
+  text-align: center;
+  padding: 10px 10px 30px 10px;
+}
+
+.search-form{
+  display: flex;
+  padding: 20px 100px;
+  margin-bottom: 30px;
+  background-color: #6070ff;
+}
+
+.load-more.btn-is-hidden {
   display: none;
 }
 
@@ -32,6 +50,7 @@ img {
 
   margin-left: -10px;
   margin-top: -10px;
+  margin-bottom: 30px;
 }
 
 .photo-card {
@@ -44,7 +63,28 @@ img {
     0px 1px 3px 0px rgba(0, 0, 0, 0.12);
 }
 
-.photo-card img {
-  max-width: 100%;
-  max-height: 100%;
+.thumb{
+  height: 200px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.thumb img {
+  height: 100%;
+  width: 100%;
+  display: block;
+
+  object-fit: cover;
+}
+
+.info{
+  display: flex;
+  justify-content: space-between;
+
+  text-align: center;
+
+  padding: 10px 10px;
+}
+
+.load-more{
 }

@@ -1,10 +1,11 @@
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
-import cardTemplate from '../templates/card-template.hbs';
-import PicturesApiService from './pictures-api-service';
-import LoadMoreBtn from './load-more-btn';
+import cardTemplate from './templates/card-template.hbs';
+import PicturesApiService from './js/pictures-api-service';
+import LoadMoreBtn from './js/load-more-btn';
 
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 const refs = {
   form: document.getElementById('search-form'),
