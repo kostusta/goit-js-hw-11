@@ -12,6 +12,8 @@ const refs = {
   cardsList: document.querySelector('.gallery'),
 };
 
+
+
 const picturesApiService = new PicturesApiService();
 const loadMoreBtn = new LoadMoreBtn({ selector: '.load-more' });
 const gallery = new SimpleLightbox('.gallery a');
@@ -43,6 +45,13 @@ function cardsContainerCleaner() {
   refs.cardsList.innerHTML = '';
 }
 
+function scrollDown() {
+  window.scroll({
+    top: refs.cardsList.offsetHeight,
+    behavior: 'smooth',
+  });
+}
+
 function fetchPictures() {
   loadMoreBtn.btnDesabled();
   return picturesApiService
@@ -57,6 +66,10 @@ function fetchPictures() {
       }
 
       cardsListMarkupRender(response);
+      scrollDown();
+
+      console.log(refs.cardsList.offsetHeight)
+
       gallery.on('show.simplelightbox');
       gallery.refresh();
       return response;
