@@ -10,21 +10,38 @@ export default class PicturesApiService {
     this.currentPageNumber = 1;
   }
 
-  fetchImages() {
-    return axios
-      .get(
+  async fetchImages() {
+    try {
+      const response = await axios.get(
         `${API_URL}?key=${API_KEY}&q=${this.searchQueryValue}&${QUERY_PARAMS}&page=${this.currentPageNumber}`,
-      )
-      .then(response => {
-        if (response.status === 200) {
-          return response;
-        }
+      );
+
+      if (response.status !== 200) {
         throw new Error(response.statusText);
-      })
-      .then(response => {
-        this.incrementPage();
-        return response;
-      });
+      }
+
+      this.incrementPage();
+
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+
+    // //----- for fetch...then function
+    // return axios
+    //   .get(
+    //     `${API_URL}?key=${API_KEY}&q=${this.searchQueryValue}&${QUERY_PARAMS}&page=${this.currentPageNumber}`,
+    //   )
+    //   .then(response => {
+    //     if (response.status === 200) {
+    //       return response;
+    //     }
+    //     throw new Error(response.statusText);
+    //   })
+    //   .then(response => {
+    //     this.incrementPage();
+    //     return response;
+    //   });
   }
 
   incrementPage() {

@@ -27,60 +27,99 @@ function cardsContainerCleaner() {
 
 function scrollDown() {
   window.scroll({
-    top: refs.cardsList.offsetHeight,
+    top: refs.cardsList.offsetHeight - 150,
     behavior: 'smooth',
   });
 }
 
-function fetchPictures() {
+// //----- fetchPictures function for fetch...then
+// function fetchPictures() {
+//   loadMoreBtn.btnDesabled();
+//   return picturesApiService
+//     .fetchImages()
+//     .then(response => {
+//       loadMoreBtn.btnEnabled();
+
+//       if (response.data.hits.length === 0) {
+//         Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+//         loadMoreBtn.btnHide();
+//         return;
+//       }
+
+//       cardsListMarkupRender(response);
+//       scrollDown();
+//       gallery.on('show.simplelightbox');
+//       gallery.refresh();
+
+//       return response;
+//     })
+//     .then(response => {
+//       const maxPagesCount = Math.ceil(response.data.totalHits / 40);
+
+//       if (picturesApiService.page > maxPagesCount) {
+//         loadMoreBtn.btnHide();
+//         Notify.info("We're sorry, but you've reached the end of search results.");
+//       }
+
+//       return response;
+//     })
+//     .catch(error => console.log(error));
+// }
+
+async function fetchPicturesAsync() {
   loadMoreBtn.btnDesabled();
-  return picturesApiService
-    .fetchImages()
-    .then(response => {
-      loadMoreBtn.btnEnabled();
 
-      if (response.data.hits.length === 0) {
-        Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-        loadMoreBtn.btnHide();
-        return;
-      }
+  try {
+    const fetchedData = await picturesApiService.fetchImages();
 
-      cardsListMarkupRender(response);
-      scrollDown();
-      gallery.on('show.simplelightbox');
-      gallery.refresh();
+    if (fetchedData.data.hits.length === 0) {
+      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      loadMoreBtn.btnHide();
+      return;
+    }
 
-      return response;
-    })
-    .then(response => {
-      const maxPagesCount = Math.ceil(response.data.totalHits / 40);
+    loadMoreBtn.btnEnabled();
+    cardsListMarkupRender(fetchedData);
+    scrollDown();
+    gallery.on('show.simplelightbox');
+    gallery.refresh();
 
-      if (picturesApiService.page > maxPagesCount) {
-        loadMoreBtn.btnHide();
-        Notify.info("We're sorry, but you've reached the end of search results.");
-      }
+    const maxPagesCount = Math.ceil(fetchedData.data.totalHits / 40);
 
-      return response;
-    })
-    .catch(error => console.log(error));
+    if (picturesApiService.page > maxPagesCount) {
+      loadMoreBtn.btnHide();
+      Notify.info("We're sorry, but you've reached the end of search results.");
+    }
+
+    return fetchedData;
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function onFormSubmitHandler(event) {
+async function onFormSubmitHandler(event) {
   event.preventDefault();
 
   picturesApiService.searchQuery = event.currentTarget.elements.searchQuery.value;
 
   picturesApiService.resetCurrentPageNumber();
-  cardsContainerCleaner();
   loadMoreBtn.btnShow();
+  cardsContainerCleaner();
 
-  fetchPictures().then(response =>
-    Notify.info(`Hooray! We found ${response.data.totalHits} images.`),
-  );
+  const fetchedData = await fetchPicturesAsync();
+
+  try {
+    Notify.info(`Hooray! We found ${fetchedData.data.totalHits} images.`);
+  } catch (error) {}
+
+  // //----- for fetch...then function
+  // fetchPicturesAsync().then(fetchedData =>
+  //   Notify.info(`Hooray! We found ${fetchedData.data.totalHits} images.`),
+  // );
 }
 
 function onLoadMoreBtnHandlet() {
-  fetchPictures();
+  fetchPicturesAsync();
 }
 
 function addListeners() {
