@@ -80,7 +80,7 @@ async function fetchPicturesAsync() {
 
     loadMoreBtn.btnEnabled();
     cardsListMarkupRender(fetchedData);
-    scrollDown();
+    setTimeout(scrollDown, 300); 
     gallery.on('show.simplelightbox');
     gallery.refresh();
 
