@@ -1,2 +1,0 @@
-h1,h2,h3,h4,h5,h6,p,ul{margin:0}ul{padding:0;list-style:none}img{display:block;max-width:100%;height:auto;margin-right:auto;margin-left:auto}.btn-is-hidden{display:none}.gallery{display:flex;flex-wrap:wrap;margin-left:-10px;margin-top:-10px}.photo-card{flex-basis:calc(20% - 10px);margin-left:10px;margin-top:10px;border-radius:5px;box-shadow:0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12)}.photo-card img{max-width:100%;max-height:100%}
-/*# sourceMappingURL=/goit-js-hw-11/styles.52f66bb5.css.map */
